@@ -78,7 +78,12 @@ router.post("/", protect, upload.array("images", 5), createFurniture);
  *                   price:
  *                     type: number
  *                   category:
- *                     $ref: '#/components/schemas/Category'
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       name:
+ *                         type: string
  *                   condition:
  *                     type: string
  *                   location:
