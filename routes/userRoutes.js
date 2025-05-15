@@ -1,6 +1,6 @@
 import express from "express";
-import { getProfile, loginUser, registerUser, updateProfilePhoto } from "../controllers/userController.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { getProfile, loginUser, registerUser, updateProfilePhoto, updateUserStatus } from "../controllers/userController.js";
+import { protect, admin } from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js";
 
 const router = express.Router();
@@ -9,12 +9,12 @@ const router = express.Router();
  * @swagger
  * /api/users/register:
  *   post:
- *     summary: Register a new user
+ *     summary: Register a new user with profile photo
  *     tags: [Users]
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -24,13 +24,16 @@ const router = express.Router();
  *                 type: string
  *               password:
  *                 type: string
+ *               photo:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       201:
  *         description: User registered successfully
  *       400:
  *         description: Bad request
  */
-router.post("/register", registerUser);
+router.post("/register", upload.single("photo"), registerUser);
 
 /**
  * @swagger
@@ -98,6 +101,46 @@ router.get("/profile", protect, getProfile);
  *         description: Unauthorized
  */
 router.put("/upload-photo", protect, upload.single("photo"), updateProfilePhoto);
+
+/**
+ * @swagger
+ * /api/users/{id}/status:
+ *   patch:
+ *     summary: Update user status (block/unblock or make/remove admin)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The user ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               isBlocked:
+ *                 type: boolean
+ *                 description: Block or unblock the user
+ *               isAdmin:
+ *                 type: boolean
+ *                 description: Make or remove admin rights
+ *     responses:
+ *       200:
+ *         description: User status updated
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden (not admin)
+ *       404:
+ *         description: User not found
+ */
+router.patch("/:id/status", protect, admin, updateUserStatus);
 
 export default router;
 

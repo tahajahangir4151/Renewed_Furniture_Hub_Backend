@@ -3,9 +3,9 @@ import cors from "cors";
 import connectDB from "./config/db.js";
 import setupSwagger from "./swagger.js";
 import open from "open";
-import userRoutes from "./routes/userRoutes.js";
+import userRoutes from "./routes/UserRoutes.js";
 import furnitureRoutes from "./routes/FurnitureRoutes.js";
-import categoryRoutes from "./routes/categoryRoutes.js";
+import categoryRoutes from "./routes/CategoryRoutes.js";
 
 connectDB();
 

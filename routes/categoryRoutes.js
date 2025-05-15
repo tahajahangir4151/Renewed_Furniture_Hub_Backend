@@ -1,5 +1,5 @@
 import express from "express";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect, admin } from "../middleware/authMiddleware.js";
 import { createCategory, getCategories } from "../controllers/categoryController.js";
 
 const router = express.Router();
@@ -30,7 +30,7 @@ const router = express.Router();
  *       401:
  *         description: Unauthorized
  */
-router.post("/", protect, createCategory);
+router.post("/", protect, admin, createCategory);
 
 /**
  * @swagger

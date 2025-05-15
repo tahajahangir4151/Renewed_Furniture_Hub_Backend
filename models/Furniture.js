@@ -43,6 +43,10 @@ const furnitureSchema = new moongoose.Schema(
       ref: "User",
       required: true,
     },
+    approved: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
