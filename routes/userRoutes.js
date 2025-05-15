@@ -1,5 +1,11 @@
 import express from "express";
-import { getProfile, loginUser, registerUser, updateProfilePhoto, updateUserStatus } from "../controllers/userController.js";
+import {
+  getProfile,
+  loginUser,
+  registerUser,
+  updateProfilePhoto,
+  updateUserStatus,
+} from "../controllers/userController.js";
 import { protect, admin } from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js";
 
@@ -100,7 +106,12 @@ router.get("/profile", protect, getProfile);
  *       401:
  *         description: Unauthorized
  */
-router.put("/upload-photo", protect, upload.single("photo"), updateProfilePhoto);
+router.put(
+  "/upload-photo",
+  protect,
+  upload.single("photo"),
+  updateProfilePhoto
+);
 
 /**
  * @swagger
@@ -143,4 +154,3 @@ router.put("/upload-photo", protect, upload.single("photo"), updateProfilePhoto)
 router.patch("/:id/status", protect, admin, updateUserStatus);
 
 export default router;
-

@@ -55,11 +55,16 @@ export const getFurniture = async (req, res) => {
 // @access  Public
 export const getFurnitureById = async (req, res) => {
   try {
-    const furniture = await Furniture.findOne({ _id: req.params.id, approved: true })
+    const furniture = await Furniture.findOne({
+      _id: req.params.id,
+      approved: true,
+    })
       .populate("category")
       .populate("owner", "name email");
     if (!furniture) {
-      return res.status(404).json({ message: "Furniture not found or not approved" });
+      return res
+        .status(404)
+        .json({ message: "Furniture not found or not approved" });
     }
     res.status(200).json(furniture);
   } catch (error) {
@@ -147,7 +152,15 @@ export const updateFurniture = async (req, res) => {
       return res.status(403).json({ message: "Not authorized" });
     }
     // Update fields
-    const fields = ["title", "description", "price", "category", "condition", "location", "status"];
+    const fields = [
+      "title",
+      "description",
+      "price",
+      "category",
+      "condition",
+      "location",
+      "status",
+    ];
     fields.forEach((field) => {
       if (req.body[field] !== undefined) furniture[field] = req.body[field];
     });
@@ -183,4 +196,4 @@ export const deleteFurniture = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}
+};

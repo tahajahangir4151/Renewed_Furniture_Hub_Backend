@@ -18,4 +18,3 @@ const ConnectDb = async () => {
 };
 
 export default ConnectDb;
- 
