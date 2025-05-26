@@ -6,6 +6,7 @@ import open from "open";
 import userRoutes from "./routes/UserRoutes.js";
 import furnitureRoutes from "./routes/FurnitureRoutes.js";
 import categoryRoutes from "./routes/CategoryRoutes.js";
+import carouselRoutes from "./routes/CarouselRoutes.js";
 
 connectDB();
 
@@ -24,6 +25,7 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/furniture", furnitureRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/carousel", carouselRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

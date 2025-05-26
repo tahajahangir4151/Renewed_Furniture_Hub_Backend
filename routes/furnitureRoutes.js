@@ -11,6 +11,7 @@ import {
   updateFurniture,
   deleteFurniture,
   getFurnitureById,
+  getFeaturedFurniture,
 } from "../controllers/furnitureController.js";
 
 const router = express.Router();
@@ -310,5 +311,25 @@ router.delete("/:id", protect, deleteFurniture);
  *         description: Furniture not found or not approved
  */
 router.get("/:id", getFurnitureById);
+
+/**
+ * @swagger
+ * /api/furniture/featured:
+ *   get:
+ *     summary: Get featured furniture for carousel fallback
+ *     tags: [Furniture]
+ *     responses:
+ *       200:
+ *         description: List of featured furniture
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *       500:
+ *         description: Failed to fetch featured furniture
+ */
+router.get("/featured", getFeaturedFurniture);
 
 export default router;

@@ -197,3 +197,24 @@ export const deleteFurniture = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Get featured furniture for carousel fallback
+// @route   GET /api/furniture/featured
+// @access  Public
+export const getFeaturedFurniture = async (req, res) => {
+  try {
+    // You can define your own logic for 'featured', e.g. most recent, most popular, or a flag
+    // Here, we'll just return the latest 5 approved furniture items
+    const featured = await Furniture.find({ approved: true })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate("category")
+      .populate("owner", "name email");
+    res.status(200).json(featured);
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch featured furniture",
+      error: error.message,
+    });
+  }
+};
