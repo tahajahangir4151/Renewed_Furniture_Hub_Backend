@@ -18,6 +18,13 @@ const router = express.Router();
 
 /**
  * @swagger
+ * tags:
+ *   name: Furniture
+ *   description: Furniture management
+ */
+
+/**
+ * @swagger
  * /api/furniture:
  *   post:
  *     summary: Upload furniture with images
@@ -56,6 +63,9 @@ const router = express.Router();
  *                   type: string
  *                   format: binary
  *                 description: Images of the furniture
+ *               sale:
+ *                 type: string
+ *                 description: Sale ID to associate the furniture with
  *     responses:
  *       201:
  *         description: Furniture uploaded successfully
@@ -114,6 +124,15 @@ router.post("/", protect, upload.array("images", 5), createFurniture);
  *                         type: string
  *                       email:
  *                         type: string
+ *                   sale:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                       discount:
+ *                         type: number
  *                   createdAt:
  *                     type: string
  *                   updatedAt:
@@ -252,9 +271,12 @@ router.get("/all", protect, admin, getAllFurniture);
  *                 items:
  *                   type: string
  *                   format: binary
+ *               sale:
+ *                 type: string
+ *                 description: Sale ID to associate the furniture with
  *     responses:
  *       200:
- *         description: Furniture updated
+ *         description: Furniture updated successfully
  *       401:
  *         description: Unauthorized
  *       403:
@@ -311,25 +333,5 @@ router.delete("/:id", protect, deleteFurniture);
  *         description: Furniture not found or not approved
  */
 router.get("/:id", getFurnitureById);
-
-/**
- * @swagger
- * /api/furniture/featured:
- *   get:
- *     summary: Get featured furniture for carousel fallback
- *     tags: [Furniture]
- *     responses:
- *       200:
- *         description: List of featured furniture
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *       500:
- *         description: Failed to fetch featured furniture
- */
-router.get("/featured", getFeaturedFurniture);
 
 export default router;

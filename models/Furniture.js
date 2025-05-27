@@ -1,6 +1,6 @@
-import moongoose from "mongoose";
+import mongoose from "mongoose";
 
-const furnitureSchema = new moongoose.Schema(
+const furnitureSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -11,7 +11,7 @@ const furnitureSchema = new moongoose.Schema(
       required: true,
     },
     category: {
-      type: moongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
       required: true,
     },
@@ -39,7 +39,7 @@ const furnitureSchema = new moongoose.Schema(
       default: "available",
     },
     owner: {
-      type: moongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
@@ -47,8 +47,13 @@ const furnitureSchema = new moongoose.Schema(
       type: Boolean,
       default: false,
     },
+    sale: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Sale",
+      default: null, // Ensure sale defaults to null
+    },
   },
   { timestamps: true }
 );
 
-export default moongoose.model("Furniture", furnitureSchema);
+export default mongoose.model("Furniture", furnitureSchema);

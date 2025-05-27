@@ -5,7 +5,7 @@ import Furniture from "../models/Furniture.js";
 // @access Private (only registered users)
 export const createFurniture = async (req, res) => {
   try {
-    const { title, description, price, category, condition, location } =
+    const { title, description, price, category, condition, location, sale } =
       req.body;
 
     const images = req.files?.map((file) => file.path);
@@ -14,6 +14,9 @@ export const createFurniture = async (req, res) => {
         .status(400)
         .json({ message: "At least one image is required" });
     }
+
+    // Validate the sale field
+    const saleValue = sale && sale.match(/^[0-9a-fA-F]{24}$/) ? sale : null;
 
     const newFurniture = new Furniture({
       title,
@@ -25,6 +28,7 @@ export const createFurniture = async (req, res) => {
       images,
       owner: req.user._id,
       approved: req.user.role === "admin" ? true : false,
+      sale: saleValue, // Set sale to null if not valid
     });
 
     await newFurniture.save();
