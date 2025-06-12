@@ -68,6 +68,10 @@ const Furniture = sequelize.define(
       },
       allowNull: true,
     },
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   },
   {
     tableName: "tbl_Furniture",
@@ -77,5 +81,6 @@ const Furniture = sequelize.define(
 
 Furniture.belongsTo(Category, { foreignKey: "categoryId", as: "category" });
 Furniture.belongsTo(User, { foreignKey: "ownerId", as: "owner" });
+Furniture.belongsTo(Sale, { foreignKey: "saleId", as: "sale" });
 
 export default Furniture;

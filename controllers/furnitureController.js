@@ -1,6 +1,7 @@
 import Furniture from "../models/Furniture.js";
 import Category from "../models/Category.js";
 import User from "../models/User.js";
+import Sale from "../models/Sale.js"; // Import Sale model
 import { Op } from "sequelize";
 
 // @desc Upload a new furniture item
@@ -8,17 +9,12 @@ import { Op } from "sequelize";
 // @access Private (only registered users)
 export const createFurniture = async (req, res) => {
   try {
-    const { title, description, price, condition, location, saleId } = req.body;
+    const { title, description, price, condition, location } = req.body;
     let categoryId = req.body.category; // Extract category field as categoryId
+    const saleId = req.body.sale; // Extract sale field as saleId
 
     // Convert categoryId to an integer
     categoryId = parseInt(categoryId, 10);
-
-    // Debugging logs
-    console.log("Request received at createFurniture");
-    console.log("Request body:", req.body);
-    console.log("Category ID received:", categoryId);
-    console.log("Type of categoryId after conversion:", typeof categoryId);
 
     // Validate categoryId
     if (!categoryId || isNaN(categoryId)) {
@@ -27,14 +23,11 @@ export const createFurniture = async (req, res) => {
 
     // Check if categoryId exists in the Category table
     const categoryExists = await Category.findByPk(categoryId);
-    console.log("Category exists check result:", categoryExists);
     if (!categoryExists) {
       return res.status(400).json({ message: "Invalid Category ID" });
     }
 
     const images = req.files?.map((file) => file.path);
-    console.log("Images received:", images);
-    console.log("Type of images:", typeof images);
 
     if (!images || images.length === 0) {
       return res.status(400).json({ message: "At least one image is required" });
@@ -42,6 +35,13 @@ export const createFurniture = async (req, res) => {
 
     // Serialize images array into a JSON string
     const serializedImages = JSON.stringify(images);
+
+    console.log("Sale ID received:", saleId);
+    console.log("Type of saleId:", typeof saleId);
+
+    // Ensure saleId is properly handled
+    const parsedSaleId = saleId && !isNaN(parseInt(saleId, 10)) ? parseInt(saleId, 10) : null;
+    console.log("Validated Sale ID:", parsedSaleId);
 
     const newFurniture = await Furniture.create({
       title,
@@ -53,7 +53,8 @@ export const createFurniture = async (req, res) => {
       images: serializedImages, // Save serialized images
       ownerId: req.user.id,
       approved: req.user.role === "admin" ? true : false,
-      saleId: saleId || null,
+      active: req.user.role === "admin" ? true : false, // Set active based on approved status
+      saleId: parsedSaleId, // Use parsedSaleId
     });
 
     res.status(201).json({ message: "Furniture uploaded", data: newFurniture });
@@ -69,8 +70,12 @@ export const createFurniture = async (req, res) => {
 export const getFurniture = async (req, res) => {
   try {
     const furnitures = await Furniture.findAll({
-      where: { approved: true },
-      include: ["category", { model: User, as: "owner", attributes: ["name", "email"] }],
+      where: { approved: true, active: true }, // Fetch only approved and active furniture
+      include: [
+        "category",
+        { model: User, as: "owner", attributes: ["name", "email"] },
+        { model: Sale, as: "sale" }, // Include associated Sale data
+      ],
     });
     res.status(200).json(furnitures);
   } catch (error) {
@@ -135,26 +140,11 @@ export const approveFurniture = async (req, res) => {
       return res.status(404).json({ message: "Furniture not found" });
     }
 
-    furniture.approved = true;
+    furniture.approved = req.body.approved;
+    furniture.active = furniture.approved; // Set active based on approved status
     await furniture.save();
 
-    res.status(200).json({ message: "Furniture approved", data: furniture });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// @desc Decline a furniture item (admin only)
-// @route PATCH /api/furniture/:id/decline
-// @access Private/Admin
-export const declineFurniture = async (req, res) => {
-  try {
-    const furniture = await Furniture.findByPk(req.params.id);
-    if (!furniture) {
-      return res.status(404).json({ message: "Furniture not found" });
-    }
-    await furniture.destroy();
-    res.status(200).json({ message: "Furniture declined and removed" });
+    res.status(200).json({ message: "Furniture approval status updated", data: furniture });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -203,8 +193,10 @@ export const deleteFurniture = async (req, res) => {
     if (furniture.ownerId !== req.user.id && req.user.role !== "admin") {
       return res.status(403).json({ message: "Not authorized" });
     }
-    await furniture.destroy();
-    res.json({ message: "Furniture deleted" });
+    furniture.active = false; // Set active to false instead of deleting the record
+    await furniture.save();
+
+    res.json({ message: "Furniture deactivated", data: furniture });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
