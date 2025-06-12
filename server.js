@@ -8,8 +8,18 @@ import furnitureRoutes from "./routes/FurnitureRoutes.js";
 import categoryRoutes from "./routes/CategoryRoutes.js";
 import carouselRoutes from "./routes/CarouselRoutes.js";
 import saleRoutes from "./routes/saleRoutes.js";
+import sequelize from "./config/db.js";
 
-connectDB();
+(async () => {
+  try {
+    await sequelize.authenticate();
+    console.log("✅ Database connected!");
+    await sequelize.sync();
+    console.log("✅ Models synced");
+  } catch (err) {
+    console.error("❌ Unable to connect to the database:", err);
+  }
+})();
 
 const app = express();
 app.use(cors());
