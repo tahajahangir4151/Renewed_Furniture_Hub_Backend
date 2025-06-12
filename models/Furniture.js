@@ -1,59 +1,81 @@
-import mongoose from "mongoose";
+import { DataTypes } from "sequelize";
+import sequelize from "../config/db.js";
+import Category from "./Category.js";
+import User from "./User.js";
+import Sale from "./Sale.js";
 
-const furnitureSchema = new mongoose.Schema(
+const Furniture = sequelize.define(
+  "Furniture",
   {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     title: {
-      type: String,
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     description: {
-      type: String,
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: false,
     },
-    category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
-      required: true,
+    categoryId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: Category,
+        key: "id",
+      },
+      allowNull: false,
     },
     condition: {
-      type: String,
-      enum: ["new", "used", "damaged"],
-      required: true,
+      type: DataTypes.ENUM("new", "used", "damaged"),
+      allowNull: false,
     },
     price: {
-      type: Number,
-      required: true,
+      type: DataTypes.FLOAT,
+      allowNull: false,
     },
     location: {
-      type: String,
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: false,
     },
-    images: [
-      {
-        type: String,
-      },
-    ],
+    images: {
+      type: DataTypes.TEXT, // Change to TEXT to store serialized JSON
+      allowNull: true,
+    },
     status: {
-      type: String,
-      enum: ["available", "sold", "blocked"],
-      default: "available",
+      type: DataTypes.ENUM("available", "sold", "blocked"),
+      defaultValue: "available",
     },
-    owner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+    ownerId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: User,
+        key: "id",
+      },
+      allowNull: false,
     },
     approved: {
-      type: Boolean,
-      default: false,
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
-    sale: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Sale",
-      default: null, // Ensure sale defaults to null
+    saleId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: Sale,
+        key: "id",
+      },
+      allowNull: true,
     },
   },
-  { timestamps: true }
+  {
+    tableName: "tbl_Furniture",
+    timestamps: true,
+  }
 );
 
-export default mongoose.model("Furniture", furnitureSchema);
+Furniture.belongsTo(Category, { foreignKey: "categoryId", as: "category" });
+Furniture.belongsTo(User, { foreignKey: "ownerId", as: "owner" });
+
+export default Furniture;
