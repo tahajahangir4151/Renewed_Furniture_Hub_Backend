@@ -3,10 +3,12 @@ import Banner from "../models/Banner.js";
 // GET /api/carousel/slides
 export const getCarouselSlides = async (req, res) => {
   try {
-    const slides = await Banner.find({ active: true }).sort({ createdAt: -1 });
-    // Map to frontend expected structure (no hardcoded fields)
+    const slides = await Banner.findAll({
+      where: { active: true },
+      order: [["createdAt", "DESC"]],
+    });
     const mappedSlides = slides.map((slide) => ({
-      id: slide._id,
+      id: slide.id,
       image: slide.imageUrl,
       title: slide.title,
       subtitle: slide.subtitle,
@@ -38,11 +40,11 @@ export const createBanner = async (req, res) => {
       originalPrice,
       link,
     } = req.body;
-    let imageUrl = req.file && req.file.path ? req.file.path : "";
+    const imageUrl = req.file && req.file.path ? req.file.path : "";
     if (!imageUrl) {
       return res.status(400).json({ message: "Image is required" });
     }
-    const banner = new Banner({
+    const banner = await Banner.create({
       imageUrl,
       title,
       subtitle,
@@ -54,7 +56,6 @@ export const createBanner = async (req, res) => {
       originalPrice,
       link,
     });
-    await banner.save();
     res.status(201).json(banner);
   } catch (error) {
     res.status(500).json({ message: "Failed to create banner", error: error.message });

@@ -1,54 +1,63 @@
-import mongoose from "mongoose";
+import { DataTypes } from "sequelize";
+import sequelize from "../config/db.js";
 
-const bannerSchema = new mongoose.Schema(
+const Banner = sequelize.define(
+  "Banner",
   {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     imageUrl: {
-      type: String,
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     title: {
-      type: String,
-      required: false,
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     subtitle: {
-      type: String,
-      required: false,
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     link: {
-      type: String,
-      required: false,
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     active: {
-      type: Boolean,
-      default: true,
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
     },
     description: {
-      type: String,
-      required: false,
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     brand: {
-      type: String,
-      required: false,
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     buttonText: {
-      type: String,
-      required: false,
-      default: "Shop Now",
+      type: DataTypes.STRING,
+      defaultValue: "Shop Now",
     },
     category: {
-      type: String,
-      required: false,
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     price: {
-      type: Number,
-      required: false,
+      type: DataTypes.FLOAT,
+      allowNull: true,
     },
     originalPrice: {
-      type: Number,
-      required: false,
+      type: DataTypes.FLOAT,
+      allowNull: true,
     },
   },
-  { timestamps: true }
+  {
+    tableName: "tbl_Banner",
+    timestamps: true,
+  }
 );
 
-export default mongoose.model("Banner", bannerSchema);
+export default Banner;

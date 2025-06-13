@@ -5,6 +5,8 @@ import {
   createFurniture,
   getFurniture,
   getUnapprovedFurniture,
+  approveFurniture,
+  declineFurniture,
   getAllFurniture,
   updateFurniture,
   deleteFurniture,
@@ -158,6 +160,60 @@ router.get("/unapproved", protect, admin, getUnapprovedFurniture);
 
 /**
  * @swagger
+ * /api/furniture/{id}/approve:
+ *   patch:
+ *     summary: Approve a furniture item (admin only)
+ *     tags: [Furniture]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The furniture item ID
+ *     responses:
+ *       200:
+ *         description: Furniture approved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden (not admin)
+ *       404:
+ *         description: Furniture not found
+ */
+router.patch("/:id/approve", protect, admin, approveFurniture);
+
+/**
+ * @swagger
+ * /api/furniture/{id}/decline:
+ *   patch:
+ *     summary: Decline (delete) a furniture item (admin only)
+ *     tags: [Furniture]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The furniture item ID
+ *     responses:
+ *       200:
+ *         description: Furniture declined and removed
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden (not admin)
+ *       404:
+ *         description: Furniture not found
+ */
+router.patch("/:id/decline", protect, admin, declineFurniture);
+
+/**
+ * @swagger
  * /api/furniture/all:
  *   get:
  *     summary: Get all furniture items (admin only, approved + unapproved)
@@ -277,51 +333,5 @@ router.delete("/:id", protect, deleteFurniture);
  *         description: Furniture not found or not approved
  */
 router.get("/:id", getFurnitureById);
-
-/**
- * @swagger
- * /api/furniture/{id}/approval:
- *   patch:
- *     summary: Approve or decline a furniture item (admin only)
- *     tags: [Furniture]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: The furniture item ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               approve:
- *                 type: boolean
- *                 description: True to approve, false to decline
- *     responses:
- *       200:
- *         description: Furniture approved or declined successfully
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden (not admin)
- *       404:
- *         description: Furniture not found
- */
-router.patch("/:id/approval", protect, admin, (req, res) => {
-  const { id } = req.params;
-  const { approve } = req.body;
-
-  // Logic to approve or decline the furniture item
-  // This will vary depending on how your approval process is set up
-  // For example, you might update a field on the furniture item document
-
-  res.status(200).json({ message: "Furniture approval status updated" });
-});
 
 export default router;

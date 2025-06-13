@@ -78,7 +78,7 @@ export const getProfile = async (req, res) => {
 
     const furnitures = await Furniture.findAll({
       where: { ownerId: req.user.id },
-      include: ["category"], // Adjust based on Sequelize associations
+      include: ["category"],
       order: [["createdAt", "DESC"]],
     });
 
