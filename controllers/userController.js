@@ -2,6 +2,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import Furniture from "../models/Furniture.js";
+import Category from "../models/Category.js";
+import Sale from "../models/Sale.js";
 
 const generateToken = (user) => {
   const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
@@ -78,7 +80,10 @@ export const getProfile = async (req, res) => {
 
     const furnitures = await Furniture.findAll({
       where: { ownerId: req.user.id },
-      include: ["category"],
+      include: [
+        { model: Category, as: "category" },
+        { model: Sale, as: "sale" },
+      ],
       order: [["createdAt", "DESC"]],
     });
 

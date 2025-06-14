@@ -1,5 +1,7 @@
 import Furniture from "../models/Furniture.js";
+import Category from "../models/Category.js";
 import User from "../models/User.js";
+import Sale from "../models/Sale.js";
 
 // @desc Upload a new furniture item
 // @route POST /api/furniture
@@ -49,7 +51,8 @@ export const getFurniture = async (req, res) => {
     const furnitures = await Furniture.findAll({
       where: { approved: true },
       include: [
-        "category",
+        { model: Category, as: "category" },
+        { model: Sale, as: "sale" },
         { model: User, as: "owner", attributes: ["name", "email"] },
       ],
     });
@@ -65,12 +68,11 @@ export const getFurniture = async (req, res) => {
 export const getFurnitureById = async (req, res) => {
   try {
     const furniture = await Furniture.findOne({
-      where: { id: req.params.id, approved: true },
-      include: [
-        "category",
-        { model: User, as: "owner", attributes: ["name", "email"] },
-      ],
-    });
+      _id: req.params.id,
+      approved: true,
+    })
+      .populate("category")
+      .populate("owner", "name email");
     if (!furniture) {
       return res
         .status(404)
@@ -87,13 +89,9 @@ export const getFurnitureById = async (req, res) => {
 // @access  Private/Admin
 export const getUnapprovedFurniture = async (req, res) => {
   try {
-    const furnitures = await Furniture.findAll({
-      where: { approved: false },
-      include: [
-        "category",
-        { model: User, as: "owner", attributes: ["name", "email"] },
-      ],
-    });
+    const furnitures = await Furniture.find({ approved: false })
+      .populate("category")
+      .populate("owner", "name email");
     res.status(200).json(furnitures);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -105,12 +103,9 @@ export const getUnapprovedFurniture = async (req, res) => {
 // @access  Private/Admin
 export const getAllFurniture = async (req, res) => {
   try {
-    const furnitures = await Furniture.findAll({
-      include: [
-        "category",
-        { model: User, as: "owner", attributes: ["name", "email"] },
-      ],
-    });
+    const furnitures = await Furniture.find()
+      .populate("category")
+      .populate("owner", "name email");
     res.status(200).json(furnitures);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -122,7 +117,7 @@ export const getAllFurniture = async (req, res) => {
 // @access  Private/Admin
 export const approveFurniture = async (req, res) => {
   try {
-    const furniture = await Furniture.findByPk(req.params.id);
+    const furniture = await Furniture.findById(req.params.id);
     if (!furniture) {
       return res.status(404).json({ message: "Furniture not found" });
     }
@@ -141,11 +136,11 @@ export const approveFurniture = async (req, res) => {
 // @access  Private/Admin
 export const declineFurniture = async (req, res) => {
   try {
-    const furniture = await Furniture.findByPk(req.params.id);
+    const furniture = await Furniture.findById(req.params.id);
     if (!furniture) {
       return res.status(404).json({ message: "Furniture not found" });
     }
-    await furniture.destroy();
+    await furniture.deleteOne();
     res.status(200).json({ message: "Furniture declined and removed" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -157,7 +152,7 @@ export const declineFurniture = async (req, res) => {
 // @access  Private (owner or admin)
 export const updateFurniture = async (req, res) => {
   try {
-    const furniture = await Furniture.findByPk(req.params.id);
+    const furniture = await Furniture.findById(req.params.id);
     if (!furniture) {
       return res.status(404).json({ message: "Furniture not found" });
     }
@@ -197,7 +192,7 @@ export const updateFurniture = async (req, res) => {
 // @access  Private (owner or admin)
 export const deleteFurniture = async (req, res) => {
   try {
-    const furniture = await Furniture.findByPk(req.params.id);
+    const furniture = await Furniture.findById(req.params.id);
     if (!furniture) {
       return res.status(404).json({ message: "Furniture not found" });
     }
@@ -208,7 +203,7 @@ export const deleteFurniture = async (req, res) => {
     ) {
       return res.status(403).json({ message: "Not authorized" });
     }
-    await furniture.destroy();
+    await furniture.deleteOne();
     res.json({ message: "Furniture deleted" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -222,19 +217,16 @@ export const getFeaturedFurniture = async (req, res) => {
   try {
     // You can define your own logic for 'featured', e.g. most recent, most popular, or a flag
     // Here, we'll just return the latest 5 approved furniture items
-    const featured = await Furniture.findAll({
-      where: { approved: true },
-      order: [["createdAt", "DESC"]],
-      limit: 5,
-      include: [
-        "category",
-        { model: User, as: "owner", attributes: ["name", "email"] },
-      ],
-    });
+    const featured = await Furniture.find({ approved: true })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate("category")
+      .populate("owner", "name email");
     res.status(200).json(featured);
   } catch (error) {
     res.status(500).json({
       message: "Failed to fetch featured furniture",
+      error: error.message,
     });
   }
 };
