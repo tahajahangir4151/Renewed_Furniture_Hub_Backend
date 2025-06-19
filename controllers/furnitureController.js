@@ -8,31 +8,53 @@ import Sale from "../models/Sale.js";
 // @access Private (only registered users)
 export const createFurniture = async (req, res) => {
   try {
-    const { title, description, price, category, condition, location, sale } =
+    const { title, description, price, condition, location, sale, stock, discount, rating } =
       req.body;
 
-    const images = req.files?.map((file) => file.path);
+    const images = req.files?.map((file) => file.path).join(",");
     if (!images || images.length === 0) {
       return res
         .status(400)
         .json({ message: "At least one image is required" });
     }
 
-    // Validate the sale field
-    const saleValue = sale && sale.match(/^[0-9a-fA-F]{24}$/) ? sale : null;
+
+    const categoryId = req.body.category;
+    const ownerId = req.user.id;
+    const saleId = req.body.sale;
+    // console.log(saleId)
 
     const newFurniture = new Furniture({
       title,
       description,
       price,
-      category,
+      categoryId,
       condition,
       location,
       images,
-      owner: req.user._id,
+      stock,
+      discount,
+      rating,
+      ownerId,
       approved: req.user.role === "admin" ? true : false,
-      sale: saleValue, // Set sale to null if not valid
+      saleId
     });
+
+    // console.log("Creating furniture with data:", {
+    //   title,
+    //   description,
+    //   price,
+    //   categoryId,
+    //   condition,
+    //   location,
+    //   images,
+    //   stock,
+    //   discount,
+    //   rating,
+    //   ownerId,
+    //   approved: req.user.role === "admin" ? true : false,
+    //   saleId: sale
+    // });
 
     await newFurniture.save();
     res.status(201).json({ message: "Furniture uploaded", data: newFurniture });
@@ -52,8 +74,8 @@ export const getFurniture = async (req, res) => {
       where: { approved: true },
       include: [
         { model: Category, as: "category" },
-        { model: Sale, as: "sale" },
-        { model: User, as: "owner", attributes: ["name", "email"] },
+        { model: Sale, as: "sale", attributes: ["id", "name", "discount", "startTime", "endTime"] },
+        { model: User, as: "owner", attributes: ["id", "name", "email"] },
       ],
     });
     res.status(200).json(furnitures);

@@ -66,6 +66,18 @@ const router = express.Router();
  *               sale:
  *                 type: string
  *                 description: Sale ID to associate the furniture with
+ *               stock:
+ *                 type: integer
+ *                 description: Stock available for the furniture
+ *               discount:
+ *                 type: number
+ *                 description: Discount on the furniture
+ *               rating:
+ *                 type: number
+ *                 description: Rating of the furniture
+ *               numberOfReviews:
+ *                 type: integer
+ *                 description: Number of reviews for the furniture
  *     responses:
  *       201:
  *         description: Furniture uploaded successfully
@@ -137,6 +149,9 @@ router.post("/", protect, upload.array("images", 5), createFurniture);
  *                     type: string
  *                   updatedAt:
  *                     type: string
+ *                   numberOfReviews:
+ *                     type: integer
+ *                     description: Number of reviews for the furniture
  */
 router.get("/", getFurniture);
 

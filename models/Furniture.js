@@ -44,10 +44,6 @@ const Furniture = sequelize.define(
       type: DataTypes.TEXT, // Change to TEXT to store serialized JSON
       allowNull: true,
     },
-    status: {
-      type: DataTypes.ENUM("available", "sold", "blocked"),
-      defaultValue: "available",
-    },
     ownerId: {
       type: DataTypes.INTEGER,
       references: {
@@ -72,9 +68,29 @@ const Furniture = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    noOfSold: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    stock: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    discount: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
+    rating: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
+    numberOfReviews: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
   },
   {
-    tableName: "tbl_Furniture",
+    tableName: "tbl_Furnitures",
     timestamps: true,
   }
 );
