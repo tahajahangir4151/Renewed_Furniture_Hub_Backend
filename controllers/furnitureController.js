@@ -8,16 +8,16 @@ import Sale from "../models/Sale.js";
 // @access Private (only registered users)
 export const createFurniture = async (req, res) => {
   try {
-    const { title, description, price, condition, location, sale, stock, discount, rating } =
+    const { title, description, price, condition, location, sale, stock, discount, rating, noOfSold, numberOfReviews, active } =
       req.body;
 
+    console.log(req.body);
     const images = req.files?.map((file) => file.path).join(",");
     if (!images || images.length === 0) {
       return res
         .status(400)
         .json({ message: "At least one image is required" });
     }
-
 
     const categoryId = req.body.category;
     const ownerId = req.user.id;
@@ -37,7 +37,10 @@ export const createFurniture = async (req, res) => {
       rating,
       ownerId,
       approved: req.user.role === "admin" ? true : false,
-      saleId
+      saleId,
+      noOfSold: noOfSold !== undefined ? noOfSold : 0,
+      numberOfReviews: numberOfReviews !== undefined ? numberOfReviews : 0,
+      active: active !== undefined ? active : false
     });
 
     // console.log("Creating furniture with data:", {
