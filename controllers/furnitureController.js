@@ -74,7 +74,7 @@ export const createFurniture = async (req, res) => {
 export const getFurniture = async (req, res) => {
   try {
     const furnitures = await Furniture.findAll({
-      where: { approved: true },
+      where: { approved: true, active: true },
       include: [
         { model: Category, as: "category" },
         { model: Sale, as: "sale", attributes: ["id", "name", "discount", "startTime", "endTime"] },
@@ -93,15 +93,15 @@ export const getFurniture = async (req, res) => {
 export const getFurnitureById = async (req, res) => {
   try {
     const furniture = await Furniture.findOne({
-      _id: req.params.id,
-      approved: true,
-    })
-      .populate("category")
-      .populate("owner", "name email");
+      where: { id: req.params.id, approved: true },
+      include: [
+        { model: Category, as: "category" },
+        { model: Sale, as: "sale", attributes: ["id", "name", "discount", "startTime", "endTime"] },
+        { model: User, as: "owner", attributes: ["name", "email"] }
+      ]
+    });
     if (!furniture) {
-      return res
-        .status(404)
-        .json({ message: "Furniture not found or not approved" });
+      return res.status(404).json({ message: "Furniture not found or not approved" });
     }
     res.status(200).json(furniture);
   } catch (error) {
@@ -114,9 +114,13 @@ export const getFurnitureById = async (req, res) => {
 // @access  Private/Admin
 export const getUnapprovedFurniture = async (req, res) => {
   try {
-    const furnitures = await Furniture.find({ approved: false })
-      .populate("category")
-      .populate("owner", "name email");
+    const furnitures = await Furniture.findAll({
+      where: { approved: false },
+      include: [
+        { model: Category, as: "category" },
+        { model: User, as: "owner", attributes: ["name", "email"] }
+      ]
+    });
     res.status(200).json(furnitures);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -128,9 +132,12 @@ export const getUnapprovedFurniture = async (req, res) => {
 // @access  Private/Admin
 export const getAllFurniture = async (req, res) => {
   try {
-    const furnitures = await Furniture.find()
-      .populate("category")
-      .populate("owner", "name email");
+    const furnitures = await Furniture.findAll({
+      include: [
+        { model: Category, as: "category" },
+        { model: User, as: "owner", attributes: ["name", "email"] }
+      ]
+    });
     res.status(200).json(furnitures);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -242,11 +249,15 @@ export const getFeaturedFurniture = async (req, res) => {
   try {
     // You can define your own logic for 'featured', e.g. most recent, most popular, or a flag
     // Here, we'll just return the latest 5 approved furniture items
-    const featured = await Furniture.find({ approved: true })
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .populate("category")
-      .populate("owner", "name email");
+    const featured = await Furniture.findAll({
+      where: { approved: true },
+      order: [["createdAt", "DESC"]],
+      limit: 5,
+      include: [
+        { model: Category, as: "category" },
+        { model: User, as: "owner", attributes: ["name", "email"] }
+      ]
+    });
     res.status(200).json(featured);
   } catch (error) {
     res.status(500).json({
