@@ -8,6 +8,7 @@ import furnitureRoutes from "./routes/FurnitureRoutes.js";
 import categoryRoutes from "./routes/CategoryRoutes.js";
 import carouselRoutes from "./routes/CarouselRoutes.js";
 import saleRoutes from "./routes/saleRoutes.js";
+import cartRoutes from "./routes/CartRoutes.js";
 import sequelize from "./config/db.js";
 
 (async () => {
@@ -38,6 +39,7 @@ app.use("/api/furniture", furnitureRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/carousel", carouselRoutes);
 app.use("/api/sales", saleRoutes);
+app.use("/api/cart", cartRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
