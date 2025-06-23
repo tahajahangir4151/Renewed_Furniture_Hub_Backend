@@ -1,5 +1,6 @@
 import Cart from "../models/Cart.js";
 import Furniture from "../models/Furniture.js";
+import Sale from "../models/Sale.js";
 
 // Get all cart items for a user
 export const getCart = async (req, res) => {
@@ -7,9 +8,22 @@ export const getCart = async (req, res) => {
     const userId = req.user.id;
     const cartItems = await Cart.findAll({
       where: { userId },
-      include: [{ model: Furniture }],
+      include: [{
+        model: Furniture,
+        include: [{ model: Sale, as: "sale" }]
+      }],
     });
-    res.json(cartItems);
+    // Map to include full product details in response
+    const cartWithProduct = cartItems.map((item) => ({
+      id: item.id,
+      userId: item.userId,
+      productId: item.productId,
+      quantity: item.quantity,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+      product: item.Furniture, // full product details with sale info
+    }));
+    res.json(cartWithProduct);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -27,7 +41,21 @@ export const addToCart = async (req, res) => {
     } else {
       cartItem = await Cart.create({ userId, productId, quantity });
     }
-    res.status(201).json(cartItem);
+    // Fetch full product details for response
+    const product = await Furniture.findByPk(productId, {
+      include: [{ model: Sale, as: "sale" }]
+    });
+
+    res.status(201).json({
+      id: cartItem.id,
+      userId: cartItem.userId,
+      productId: cartItem.productId,
+      quantity: cartItem.quantity,
+      createdAt: cartItem.createdAt,
+      updatedAt: cartItem.updatedAt,
+      product,
+      Sale: product.sale,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -47,7 +75,19 @@ export const updateCartItem = async (req, res) => {
     }
     cartItem.quantity = quantity;
     await cartItem.save();
-    res.json(cartItem);
+    // Fetch full product details for response (with sale info)
+    const product = await Furniture.findByPk(cartItem.productId, {
+      include: [{ model: Sale, as: "sale" }]
+    });
+    res.json({
+      id: cartItem.id,
+      userId: cartItem.userId,
+      productId: cartItem.productId,
+      quantity: cartItem.quantity,
+      createdAt: cartItem.createdAt,
+      updatedAt: cartItem.updatedAt,
+      product,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
