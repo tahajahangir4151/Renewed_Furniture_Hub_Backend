@@ -10,12 +10,13 @@ import carouselRoutes from "./routes/CarouselRoutes.js";
 import saleRoutes from "./routes/saleRoutes.js";
 import cartRoutes from "./routes/CartRoutes.js";
 import sequelize from "./config/db.js";
+import wishlistRoutes from "./routes/WishlistRoutes.js";
 
 (async () => {
   try {
     await sequelize.authenticate();
-    console.log("✅ Database connected!");
     await sequelize.sync();
+    console.log("✅ Database connected!");
     console.log("✅ Models synced");
   } catch (err) {
     console.error("❌ Unable to connect to the database:", err);
@@ -40,6 +41,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/carousel", carouselRoutes);
 app.use("/api/sales", saleRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
