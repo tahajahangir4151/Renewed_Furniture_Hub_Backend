@@ -4,6 +4,7 @@ import {
     getAddress,
     upsertAddress,
     setDefaultAddress,
+    deleteAddress,
 } from "../controllers/adressController.js";
 
 const router = express.Router();
@@ -90,7 +91,7 @@ const router = express.Router();
  *                 type: boolean
  *     responses:
  *       200:
- *         description: Address added/updated
+ *         description: Address added or updated successfully
  *       500:
  *         description: Server error
  */
@@ -99,7 +100,7 @@ const router = express.Router();
  * @swagger
  * /api/address/{id}/default:
  *   put:
- *     summary: Set a specific address as default
+ *     summary: Set a specific address as the default
  *     tags: [Address]
  *     security:
  *       - bearerAuth: []
@@ -109,10 +110,34 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: integer
- *         description: Address ID
+ *         description: ID of the address to be set as default
  *     responses:
  *       200:
- *         description: Default address updated
+ *         description: Default address updated successfully
+ *       404:
+ *         description: Address not found
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /api/address/{id}:
+ *   delete:
+ *     summary: Delete a specific address
+ *     tags: [Address]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the address to delete
+ *     responses:
+ *       200:
+ *         description: Address deleted successfully
  *       404:
  *         description: Address not found
  *       500:
@@ -122,5 +147,6 @@ const router = express.Router();
 router.get("/", protect, getAddress);
 router.post("/", protect, upsertAddress);
 router.put("/:id/default", protect, setDefaultAddress);
+router.delete("/:id", protect, deleteAddress);
 
 export default router;
