@@ -11,6 +11,7 @@ import saleRoutes from "./routes/saleRoutes.js";
 import cartRoutes from "./routes/CartRoutes.js";
 import sequelize from "./config/db.js";
 import wishlistRoutes from "./routes/WishlistRoutes.js";
+import adressRoutes from "./routes/AdressRoutes.js";
 
 (async () => {
   try {
@@ -42,6 +43,7 @@ app.use("/api/carousel", carouselRoutes);
 app.use("/api/sales", saleRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/address", adressRoutes)
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
